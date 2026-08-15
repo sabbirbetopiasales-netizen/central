@@ -1,0 +1,70 @@
+{
+  "entities": {
+    "dashboardPeriods": {
+      "title": "Dashboard Periods",
+      "description": "Multi-period sales leaderboard state containing month, quarter, and year periods",
+      "type": "object",
+      "properties": {
+        "periodsData": {
+          "type": "object",
+          "description": "Record containing month, quarter, and year period objects with reps, departments, summary, regions"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last modification"
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "User ID or username who updated the data"
+        }
+      },
+      "required": ["periodsData", "updatedAt"]
+    },
+    "dealLog": {
+      "title": "Deals Log",
+      "description": "Recent closed sales deals across departments",
+      "type": "object",
+      "properties": {
+        "deals": {
+          "type": "array",
+          "description": "List of closed sales deals"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last updated timestamp"
+        }
+      },
+      "required": ["deals", "updatedAt"]
+    },
+    "appUsers": {
+      "title": "App Users",
+      "description": "Authorized Admin and Editor accounts",
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "description": "List of authenticated system users and roles"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last updated timestamp"
+        }
+      },
+      "required": ["users", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/leaderboard_data/periods": {
+      "schema": "dashboardPeriods",
+      "description": "Global sales leaderboard periods, targets, reps and regions data"
+    },
+    "/leaderboard_data/deals": {
+      "schema": "dealLog",
+      "description": "Global real-time sales transactions and closed deals"
+    },
+    "/leaderboard_data/users": {
+      "schema": "appUsers",
+      "description": "Provisioned user accounts, editor and admin roles"
+    }
+  }
+}

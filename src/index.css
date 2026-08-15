@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    border-color: #1e293b;
+  }
+}
+
+/* Custom scrollbar for leaderboard table */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Glow effects matching reference design */
+.gold-glow {
+  box-shadow: 0 0 35px 6px rgba(245, 158, 11, 0.45);
+}
+
+.silver-glow {
+  box-shadow: 0 0 30px 4px rgba(148, 163, 184, 0.4);
+}
+
+.bronze-glow {
+  box-shadow: 0 0 30px 4px rgba(249, 115, 22, 0.45);
+}
+
+.card-dark {
+  background-color: #151c2d;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 4s ease-in-out infinite;
+}
+

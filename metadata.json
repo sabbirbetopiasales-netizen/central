@@ -1,0 +1,6 @@
+{
+  "name": "Global Sales Performance Leaderboard",
+  "description": "Betopia Group - Real-time sales performance leaderboard and TV display dashboard with live Firestore synchronization, podium rankings, department targets, and administrative controls.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
