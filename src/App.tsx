@@ -48,27 +48,9 @@ export default function App() {
   // Multi-Period Data State (Month, Quarter, YTD)
   const [periodsData, setPeriodsData] = useState<Record<TimeRange, PeriodData>>(() => {
     try {
-      const saved = localStorage.getItem('office_leaderboard_periods_v4');
+      const saved = localStorage.getItem('office_leaderboard_periods_v5');
       if (saved) {
         return JSON.parse(saved);
-      }
-      // Migrate v2 single month data if available
-      const savedReps = localStorage.getItem('office_leaderboard_reps_v2');
-      const savedDepts = localStorage.getItem('office_leaderboard_depts_v2');
-      const savedSummary = localStorage.getItem('office_leaderboard_summary_v2');
-      const savedRegions = localStorage.getItem('office_leaderboard_regions_v2');
-      if (savedReps || savedDepts || savedSummary) {
-        const monthData: PeriodData = {
-          reps: savedReps ? JSON.parse(savedReps) : INITIAL_REPS,
-          departments: savedDepts ? JSON.parse(savedDepts) : INITIAL_DEPARTMENTS,
-          summary: savedSummary ? JSON.parse(savedSummary) : INITIAL_SUMMARY,
-          regions: savedRegions ? JSON.parse(savedRegions) : INITIAL_REGIONS,
-        };
-        return {
-          month: monthData,
-          quarter: INITIAL_PERIOD_DATA.quarter as PeriodData,
-          year: INITIAL_PERIOD_DATA.year as PeriodData,
-        };
       }
     } catch (e) {
       console.error(e);
@@ -222,7 +204,7 @@ export default function App() {
   // Persist All Multi-Period Data (Month, Quarter, Year) to Local Storage & Cloud Firestore
   useEffect(() => {
     try {
-      localStorage.setItem('office_leaderboard_periods_v4', JSON.stringify(periodsData));
+      localStorage.setItem('office_leaderboard_periods_v5', JSON.stringify(periodsData));
       
       // If modification was done locally by authorized user/admin (not just received from cloud snapshot), push to Firestore
       if (canEdit && !isIncomingFromCloudRef.current) {

@@ -121,7 +121,7 @@ export function subscribeToPeriods(
           if (payload?.periodsData) {
             const clean = sanitizePeriodsData(payload.periodsData);
             try {
-              localStorage.setItem('office_leaderboard_periods_v4', JSON.stringify(clean));
+              localStorage.setItem('office_leaderboard_periods_v5', JSON.stringify(clean));
             } catch (e) {}
             onData(clean);
           }
