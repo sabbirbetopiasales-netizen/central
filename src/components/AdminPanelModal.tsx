@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SalesRep, DepartmentData, CompanyTargetSummary, AppUser, UserRole, TimeRange } from '../types';
+import { INITIAL_REPS } from '../data/initialData';
 import { 
   X, 
   ShieldCheck, 
@@ -145,6 +146,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   const [showAddManpower, setShowAddManpower] = useState(false);
   
   // New Manpower Form State
+  const [newManpowerEmployeeId, setNewManpowerEmployeeId] = useState('');
   const [newManpowerName, setNewManpowerName] = useState('');
   const [newManpowerImageUrl, setNewManpowerImageUrl] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400');
   const [newManpowerDept, setNewManpowerDept] = useState(departments[0]?.name || 'Full Stack Development');
@@ -300,18 +302,20 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     e.preventDefault();
     if (!newManpowerName.trim()) return;
 
+    const empId = newManpowerEmployeeId.trim();
     const newRep: SalesRep = {
-      id: `rep-${Date.now()}`,
+      id: `rep-${empId || Date.now()}`,
+      employeeId: empId || undefined,
       name: newManpowerName.trim(),
       displayName: newManpowerName.trim(),
       avatar: newManpowerImageUrl.trim() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
       wonDealsAmount: Number(newManpowerWon) || 0,
-      targetAmount: Number(newManpowerTarget) || 400000,
+      targetAmount: Number(newManpowerTarget) || 0,
       department: newManpowerDept || deptList[0]?.name || 'Full Stack Development',
       role: newManpowerRole || 'Account Executive',
       region: newManpowerRegion || 'USA',
-      demosCount: Number(newManpowerDemos) || 6,
-      winRate: Number(newManpowerWinRate) || 70,
+      demosCount: Number(newManpowerDemos) || 0,
+      winRate: Number(newManpowerWinRate) || 0,
       email: newManpowerEmail.trim() || `${newManpowerName.toLowerCase().replace(/\s+/g, '.')}@company.com`,
       phone: newManpowerPhone.trim() || '+1 (555) 019-2834',
       badges: newManpowerBadges,
@@ -323,6 +327,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     onUpdateReps(updated, timeRange);
 
     // Reset Form
+    setNewManpowerEmployeeId('');
     setNewManpowerName('');
     setNewManpowerEmail('');
     setNewManpowerPhone('');
@@ -905,13 +910,29 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 </select>
               </div>
 
-              <button
-                onClick={() => setShowAddManpower(prev => !prev)}
-                className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all shrink-0"
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>{showAddManpower ? 'Close Form' : '+ Add Representative'}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('Reset team roster to the 12 new representatives with Employee IDs?')) {
+                      onUpdateReps(INITIAL_REPS, timeRange);
+                    }
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition-all shrink-0"
+                  title="Reset team to 12 default reps"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset to 12 Reps</span>
+                </button>
+
+                <button
+                  onClick={() => setShowAddManpower(prev => !prev)}
+                  className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all shrink-0"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{showAddManpower ? 'Close Form' : '+ Add Representative'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Add Manpower Form */}
@@ -924,7 +945,18 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   <span className="text-[10px] text-slate-400">Specify avatar photo URL, quota, and assigned department</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="text-[10px] text-slate-400 block mb-0.5 font-semibold">Employee ID *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 1034"
+                      value={newManpowerEmployeeId}
+                      onChange={(e) => setNewManpowerEmployeeId(e.target.value)}
+                      className="w-full bg-[#0b101b] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                    />
+                  </div>
+
                   <div>
                     <label className="text-[10px] text-slate-400 block mb-0.5 font-semibold">Full Name *</label>
                     <input
@@ -1093,13 +1125,23 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-1">
-                          <input
-                            type="text"
-                            value={rep.name}
-                            onChange={(e) => handleRepFieldChange(rep.id, 'name', e.target.value)}
-                            className="bg-transparent font-bold text-white text-xs truncate focus:bg-[#0b101b] px-1 py-0.5 rounded border border-transparent focus:border-blue-500 w-36"
-                          />
+                        <div className="flex items-center justify-between gap-1 mb-0.5">
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            <input
+                              type="text"
+                              placeholder="ID"
+                              value={rep.employeeId || ''}
+                              onChange={(e) => handleRepFieldChange(rep.id, 'employeeId', e.target.value)}
+                              title="Employee ID"
+                              className="bg-[#0b101b] font-mono text-[10px] text-blue-400 font-bold px-1.5 py-0.5 rounded border border-slate-700 w-14 text-center shrink-0 focus:border-blue-500"
+                            />
+                            <input
+                              type="text"
+                              value={rep.name}
+                              onChange={(e) => handleRepFieldChange(rep.id, 'name', e.target.value)}
+                              className="bg-transparent font-bold text-white text-xs truncate focus:bg-[#0b101b] px-1 py-0.5 rounded border border-transparent focus:border-blue-500 flex-1 min-w-[80px]"
+                            />
+                          </div>
                           <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-medium shrink-0">
                             {rep.region}
                           </span>

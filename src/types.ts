@@ -14,6 +14,7 @@ export interface Deal {
 
 export interface SalesRep {
   id: string;
+  employeeId?: string;
   name: string;
   displayName: string;
   avatar: string;

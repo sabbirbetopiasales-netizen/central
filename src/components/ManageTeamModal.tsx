@@ -24,6 +24,7 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
   departments
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editEmployeeId, setEditEmployeeId] = useState('');
   const [editName, setEditName] = useState('');
   const [editDept, setEditDept] = useState<string>('Full Stack Development');
   const [editWonAmount, setEditWonAmount] = useState<number>(0);
@@ -32,12 +33,13 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
 
   // New Rep Form
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [newEmployeeId, setNewEmployeeId] = useState('');
   const [newName, setNewName] = useState('');
   const [newDept, setNewDept] = useState<string>('Full Stack Development');
   const [newRole, setNewRole] = useState('Account Executive');
   const [newRegion, setNewRegion] = useState('USA');
-  const [newWonAmount, setNewWonAmount] = useState('150000');
-  const [newDemos, setNewDemos] = useState('6');
+  const [newWonAmount, setNewWonAmount] = useState('0');
+  const [newDemos, setNewDemos] = useState('0');
   const [newAvatar, setNewAvatar] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400');
 
   const deptNames = departments && departments.length > 0
@@ -48,6 +50,7 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
 
   const startEdit = (rep: SalesRep) => {
     setEditingId(rep.id);
+    setEditEmployeeId(rep.employeeId || '');
     setEditName(rep.name);
     setEditDept(rep.department || 'Full Stack Development');
     setEditWonAmount(rep.wonDealsAmount);
@@ -58,6 +61,7 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
   const saveEdit = (rep: SalesRep) => {
     onUpdateRep({
       ...rep,
+      employeeId: editEmployeeId.trim() || undefined,
       name: editName.trim() || rep.name,
       displayName: editName.trim() || rep.name,
       department: editDept,
@@ -73,21 +77,23 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
     if (!newName.trim()) return;
 
     onAddRep({
+      employeeId: newEmployeeId.trim() || undefined,
       name: newName.trim(),
       displayName: newName.trim(),
       avatar: newAvatar.trim() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
       wonDealsAmount: parseFloat(newWonAmount) || 0,
-      demosCount: newDemos || 5,
+      demosCount: newDemos || 0,
       badges: [],
       role: newRole,
       department: newDept,
       region: newRegion,
-      targetAmount: 400000,
-      winRate: 65,
+      targetAmount: 0,
+      winRate: 0,
       recentDeals: []
     });
 
     setIsAddingNew(false);
+    setNewEmployeeId('');
     setNewName('');
   };
 
@@ -145,6 +151,13 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <input
                   type="text"
+                  placeholder="Employee ID (e.g. 1034)"
+                  value={newEmployeeId}
+                  onChange={(e) => setNewEmployeeId(e.target.value)}
+                  className="bg-[#0b101b] border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono"
+                />
+                <input
+                  type="text"
                   placeholder="Rep Full Name"
                   required
                   value={newName}
@@ -184,7 +197,7 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
                   placeholder="Image URL"
                   value={newAvatar}
                   onChange={(e) => setNewAvatar(e.target.value)}
-                  className="bg-[#0b101b] border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white sm:col-span-2 font-mono"
+                  className="bg-[#0b101b] border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono"
                 />
               </div>
 
@@ -232,6 +245,13 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
                     <div className="flex flex-wrap items-center gap-2 flex-1">
                       <input
                         type="text"
+                        placeholder="ID"
+                        value={editEmployeeId}
+                        onChange={(e) => setEditEmployeeId(e.target.value)}
+                        className="bg-[#0b101b] border border-slate-700 rounded px-2 py-1 text-xs text-blue-400 font-mono font-bold w-16 text-center"
+                      />
+                      <input
+                        type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         className="bg-[#0b101b] border border-slate-700 rounded px-2 py-1 text-xs text-white w-28"
@@ -262,7 +282,12 @@ export const ManageTeamModal: React.FC<ManageTeamModalProps> = ({
                     </div>
                   ) : (
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {rep.employeeId && (
+                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                            ID: {rep.employeeId}
+                          </span>
+                        )}
                         <span className="text-sm font-semibold text-white truncate">{rep.name}</span>
                         <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">
                           {rep.department}

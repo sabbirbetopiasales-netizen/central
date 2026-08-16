@@ -58,12 +58,14 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   const filteredReps = reps
     .filter(rep => {
       const repName = String(rep?.name || '');
+      const repEmpId = String(rep?.employeeId || '');
       const repDept = String(rep?.department || '');
       const repRegion = String(rep?.region || '');
       const repRole = String(rep?.role || '');
 
       const matchesSearch = 
         repName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        repEmpId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         repDept.toLowerCase().includes(searchTerm.toLowerCase()) ||
         repRegion.toLowerCase().includes(searchTerm.toLowerCase()) ||
         repRole.toLowerCase().includes(searchTerm.toLowerCase());
@@ -286,7 +288,12 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
 
                   {/* Rep Name */}
                   <div className="min-w-0 truncate">
-                    <div className="flex items-center gap-1 truncate">
+                    <div className="flex items-center gap-1.5 truncate">
+                      {rep.employeeId && (
+                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/15 text-blue-300 border border-blue-500/25 shrink-0">
+                          {rep.employeeId}
+                        </span>
+                      )}
                       <span className="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-blue-400 transition-colors truncate">
                         {rep.name}
                       </span>

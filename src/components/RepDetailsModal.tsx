@@ -97,6 +97,11 @@ export const RepDetailsModal: React.FC<RepDetailsModalProps> = ({
               <h3 className="text-xl font-bold text-white tracking-tight">
                 {rep.name}
               </h3>
+              {rep.employeeId && (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  ID: {rep.employeeId}
+                </span>
+              )}
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">
                 {rep.department}
               </span>

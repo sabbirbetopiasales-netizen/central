@@ -10,7 +10,8 @@ export interface SyncedPeriodsData {
 }
 
 // Collection and Document paths
-const PERIODS_DOC = doc(db, 'leaderboard_data', 'periods');
+const PERIODS_DOC = doc(db, 'leaderboard_data', 'periods_v2');
+const LEGACY_PERIODS_DOC = doc(db, 'leaderboard_data', 'periods');
 const USERS_DOC = doc(db, 'leaderboard_data', 'users');
 
 let isQuotaExceeded = false;
@@ -48,22 +49,31 @@ function sanitizePeriodsData(raw: any): SyncedPeriodsData {
   if (!raw) return initial;
 
   const sanitizeReps = (reps: any[], fallbackReps: any[]): any[] => {
-    if (!Array.isArray(reps)) return fallbackReps;
+    if (!Array.isArray(reps) || reps.length === 0) return fallbackReps;
+    
+    // Check if the dataset still contains legacy reps (e.g. David Chen / Marcus Vance / rep-1)
+    const hasLegacyReps = reps.some(r => r.id === 'rep-13' || r.id === 'rep-10' || r.id === 'rep-12' || r.id === 'rep-1' || r.name === 'David Chen');
+    const hasNewReps = reps.some(r => r.id === 'rep-1034' || r.employeeId === '1034' || r.name === 'Mehrab Ahmed');
+    if (hasLegacyReps && !hasNewReps) {
+      return fallbackReps;
+    }
+
     return reps.map((r, idx) => {
       const repName = String(r.name || r.displayName || 'Sales Representative');
       return {
         id: String(r.id || `rep-${Date.now()}-${idx}`),
+        employeeId: r.employeeId ? String(r.employeeId) : undefined,
         name: repName,
         displayName: repName,
         avatar: String(r.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'),
         wonDealsAmount: typeof r.wonDealsAmount === 'number' ? r.wonDealsAmount : Number(r.wonDealsAmount) || 0,
-        targetAmount: typeof r.targetAmount === 'number' ? r.targetAmount : Number(r.targetAmount) || 400000,
+        targetAmount: typeof r.targetAmount === 'number' ? r.targetAmount : Number(r.targetAmount) || 0,
         department: String(r.department || 'Full Stack Development'),
         role: String(r.role || 'Account Executive'),
         region: String(r.region || 'USA'),
-        demosCount: r.demosCount ?? 5,
-        winRate: typeof r.winRate === 'number' ? r.winRate : Number(r.winRate) || 70,
-        badges: Array.isArray(r.badges) ? r.badges : ['star'],
+        demosCount: r.demosCount ?? 0,
+        winRate: typeof r.winRate === 'number' ? r.winRate : Number(r.winRate) || 0,
+        badges: Array.isArray(r.badges) ? r.badges : [],
         recentDeals: Array.isArray(r.recentDeals) ? r.recentDeals : [],
         email: r.email || '',
         phone: r.phone || ''
@@ -72,12 +82,12 @@ function sanitizePeriodsData(raw: any): SyncedPeriodsData {
   };
 
   const sanitizeDepartments = (depts: any[], fallbackDepts: any[]): any[] => {
-    if (!Array.isArray(depts)) return fallbackDepts;
+    if (!Array.isArray(depts) || depts.length === 0) return fallbackDepts;
     return depts.map((d, idx) => ({
       id: String(d.id || `dept-${Date.now()}-${idx}`),
       name: String(d.name || 'Department'),
       shortName: String(d.shortName || d.name || 'Dept'),
-      target: typeof d.target === 'number' ? d.target : Number(d.target) || 500000,
+      target: typeof d.target === 'number' ? d.target : Number(d.target) || 0,
       actual: typeof d.actual === 'number' ? d.actual : Number(d.actual) || 0,
       color: String(d.color || '#3b82f6'),
       iconName: String(d.iconName || 'Briefcase'),
@@ -167,11 +177,15 @@ export async function savePeriodsToFirestore(
 
   const executeSave = async () => {
     try {
-      await setDoc(PERIODS_DOC, {
+      const payload = {
         periodsData,
         updatedAt: new Date().toISOString(),
         updatedBy,
-      }, { merge: true });
+      };
+      await Promise.all([
+        setDoc(PERIODS_DOC, payload, { merge: true }),
+        setDoc(LEGACY_PERIODS_DOC, payload, { merge: true }).catch(() => {})
+      ]);
     } catch (error) {
       if (isQuotaError(error)) {
         notifyQuotaExceeded();

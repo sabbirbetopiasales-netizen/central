@@ -120,7 +120,7 @@ export const LogDealModal: React.FC<LogDealModalProps> = ({
               >
                 {reps.map((rep) => (
                   <option key={rep.id} value={rep.id}>
-                    {rep.name} ({rep.region}) — Currently ${rep.wonDealsAmount.toLocaleString()}
+                    {rep.employeeId ? `[ID: ${rep.employeeId}] ` : ''}{rep.name} ({rep.department}) — Currently ${rep.wonDealsAmount.toLocaleString()}
                   </option>
                 ))}
               </select>
