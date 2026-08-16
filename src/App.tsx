@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { Analytics } from "@vercel/analytics/react";
 import { 
   SalesRep, 
@@ -252,6 +253,37 @@ export default function App() {
 
   // Add Deal Handler - updates rep, department, summary and region simultaneously
   const handleAddDeal = (dealData: Omit<Deal, 'id' | 'date'>) => {
+    // Gamification: Trigger celebratory sales burst confetti
+    try {
+      // Center & side cannon burst
+      confetti({
+        particleCount: 60,
+        spread: 70,
+        origin: { y: 0.65 },
+        colors: ['#f59e0b', '#3b82f6', '#10b981', '#ec4899', '#8b5cf6', '#eab308']
+      });
+
+      // Left & Right celebratory fireworks
+      setTimeout(() => {
+        confetti({
+          particleCount: 35,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.7 },
+          colors: ['#f59e0b', '#10b981', '#3b82f6']
+        });
+        confetti({
+          particleCount: 35,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.7 },
+          colors: ['#ec4899', '#8b5cf6', '#eab308']
+        });
+      }, 150);
+    } catch (e) {
+      console.error('Confetti trigger error:', e);
+    }
+
     const newDeal: Deal = {
       ...dealData,
       id: `deal-${Date.now()}`,
