@@ -49,69 +49,20 @@ export const PodiumTop10Card: React.FC<PodiumTop10CardProps> = ({
         </h2>
       </div>
 
-      {/* TOP 3 PODIUM (Bigger Avatar Icons) */}
-      <div className={`grid grid-cols-3 gap-2 sm:gap-4 items-end relative z-10 border-b border-slate-800/60 ${
-        isTvMode ? 'pb-2 pt-0.5' : 'pb-3 pt-1'
+      {/* TOP 3 PODIUM (Square Box Frames, 2nd Left - 1st Center Elevated - 3rd Right) */}
+      <div className={`grid grid-cols-3 gap-2 sm:gap-4 items-end justify-items-center relative z-10 border-b border-slate-800/60 ${
+        isTvMode ? 'pb-2 pt-2' : 'pb-4 pt-3'
       }`}>
-        {/* 1st Place (Biggest Avatar, Gold Halo Ring) */}
-        {rep1 && (
-          <div 
-            id={`podium-1-${rep1.id}`}
-            onClick={() => onSelectRep(rep1)}
-            className="flex flex-col items-center text-center cursor-pointer transition-transform duration-300 hover:scale-105 group"
-          >
-            <div className={`relative ${isTvMode ? 'mb-2' : 'mb-3'}`}>
-              <div className={`rounded-full p-1 bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-200 gold-glow relative ${
-                isTvMode ? 'w-20 h-20 sm:w-24 sm:h-24 md:w-26 md:h-26' : 'w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32'
-              }`}>
-                <img
-                  src={rep1.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
-                  alt={rep1.name || 'Top Seller'}
-                  referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-                  }}
-                  className="w-full h-full object-cover rounded-full border-2 border-[#151c2d]"
-                />
-              </div>
-
-              {/* Gold Rank Badge #1 with Sparkles */}
-              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 flex items-center justify-center">
-                <div className="relative">
-                  <div className={`${
-                    isTvMode ? 'w-7 h-7 text-xs' : 'w-8 h-8 text-sm'
-                  } rounded-full bg-gradient-to-b from-yellow-300 to-amber-500 text-slate-950 font-extrabold flex items-center justify-center shadow-md border-2 border-[#151c2d]`}>
-                    1
-                  </div>
-                  <Sparkles className="w-3.5 h-3.5 text-yellow-300 absolute -top-2 -right-2.5 animate-pulse" />
-                </div>
-              </div>
-            </div>
-
-            <span className="text-xs sm:text-sm text-slate-200 font-semibold mt-1 truncate max-w-[120px] group-hover:text-blue-400 transition-colors">
-              {rep1.name}
-            </span>
-            <span className="text-[10px] text-blue-400 font-medium truncate max-w-[110px]">
-              {rep1.department}
-            </span>
-            <span className={`${
-              isTvMode ? 'text-base sm:text-xl md:text-2xl' : 'text-lg sm:text-2xl md:text-3xl'
-            } font-bold text-white tracking-tight mt-0.5`}>
-              {formatRevenue(rep1.wonDealsAmount)}
-            </span>
-          </div>
-        )}
-
-        {/* 2nd Place (Silver Halo Ring) */}
-        {rep2 && (
+        {/* 2nd Place (Left side, slightly smaller than 1st) */}
+        {rep2 ? (
           <div 
             id={`podium-2-${rep2.id}`}
             onClick={() => onSelectRep(rep2)}
-            className="flex flex-col items-center text-center cursor-pointer transition-transform duration-300 hover:scale-105 group"
+            className="flex flex-col items-center text-center cursor-pointer transition-transform duration-300 hover:scale-105 group w-full"
           >
-            <div className={`relative ${isTvMode ? 'mb-2' : 'mb-3'}`}>
-              <div className={`rounded-full p-1 bg-gradient-to-tr from-slate-400 via-slate-200 to-slate-400 silver-glow relative ${
-                isTvMode ? 'w-16 h-16 sm:w-20 sm:h-20 md:w-22 md:h-22' : 'w-22 h-22 sm:w-26 sm:h-26 md:w-28 md:h-28'
+            <div className={`relative ${isTvMode ? 'mb-2.5' : 'mb-3.5'}`}>
+              <div className={`rounded-2xl p-1 bg-gradient-to-tr from-slate-400 via-slate-200 to-slate-400 silver-glow relative aspect-square shadow-xl ${
+                isTvMode ? 'w-18 h-18 sm:w-22 sm:h-22 md:w-24 md:h-24' : 'w-22 h-22 sm:w-26 sm:h-26 md:w-28 md:h-28'
               }`}>
                 <img
                   src={rep2.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
@@ -120,7 +71,7 @@ export const PodiumTop10Card: React.FC<PodiumTop10CardProps> = ({
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
                   }}
-                  className="w-full h-full object-cover rounded-full border-2 border-[#151c2d]"
+                  className="w-full h-full object-cover rounded-xl border-2 border-[#151c2d]"
                 />
               </div>
 
@@ -134,10 +85,10 @@ export const PodiumTop10Card: React.FC<PodiumTop10CardProps> = ({
               </div>
             </div>
 
-            <span className="text-xs sm:text-sm text-slate-200 font-semibold mt-1 truncate max-w-[120px] group-hover:text-blue-400 transition-colors">
+            <span className="text-xs sm:text-sm text-slate-200 font-semibold mt-1 truncate max-w-[110px] sm:max-w-[130px] group-hover:text-blue-400 transition-colors">
               {rep2.name}
             </span>
-            <span className="text-[10px] text-indigo-400 font-medium truncate max-w-[110px]">
+            <span className="text-[10px] text-indigo-400 font-medium truncate max-w-[100px] sm:max-w-[120px]">
               {rep2.department}
             </span>
             <span className={`${
@@ -146,18 +97,67 @@ export const PodiumTop10Card: React.FC<PodiumTop10CardProps> = ({
               {formatRevenue(rep2.wonDealsAmount)}
             </span>
           </div>
-        )}
+        ) : <div className="w-full" />}
 
-        {/* 3rd Place (Bronze Halo Ring) */}
-        {rep3 && (
+        {/* 1st Place (Middle / Center, elevated up top, biggest square box) */}
+        {rep1 ? (
+          <div 
+            id={`podium-1-${rep1.id}`}
+            onClick={() => onSelectRep(rep1)}
+            className="flex flex-col items-center text-center cursor-pointer transition-transform duration-300 hover:scale-105 group w-full -translate-y-2 sm:-translate-y-4"
+          >
+            <div className={`relative ${isTvMode ? 'mb-2.5' : 'mb-3.5'}`}>
+              <div className={`rounded-2xl p-1 bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-200 gold-glow relative aspect-square shadow-2xl ${
+                isTvMode ? 'w-22 h-22 sm:w-26 sm:h-26 md:w-30 md:h-30' : 'w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36'
+              }`}>
+                <img
+                  src={rep1.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
+                  alt={rep1.name || 'Top Seller'}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+                  }}
+                  className="w-full h-full object-cover rounded-xl border-2 border-[#151c2d]"
+                />
+              </div>
+
+              {/* Gold Rank Badge #1 with Sparkles */}
+              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 flex items-center justify-center">
+                <div className="relative">
+                  <div className={`${
+                    isTvMode ? 'w-7 h-7 text-xs' : 'w-8 h-8 sm:w-9 sm:h-9 text-sm'
+                  } rounded-full bg-gradient-to-b from-yellow-300 to-amber-500 text-slate-950 font-extrabold flex items-center justify-center shadow-md border-2 border-[#151c2d]`}>
+                    1
+                  </div>
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-300 absolute -top-2 -right-2.5 animate-pulse" />
+                </div>
+              </div>
+            </div>
+
+            <span className="text-xs sm:text-base text-slate-100 font-bold mt-1 truncate max-w-[120px] sm:max-w-[150px] group-hover:text-amber-400 transition-colors">
+              {rep1.name}
+            </span>
+            <span className="text-[10px] sm:text-xs text-amber-400/90 font-medium truncate max-w-[110px] sm:max-w-[130px]">
+              {rep1.department}
+            </span>
+            <span className={`${
+              isTvMode ? 'text-lg sm:text-2xl md:text-3xl' : 'text-xl sm:text-3xl md:text-4xl'
+            } font-extrabold text-white tracking-tight mt-0.5 drop-shadow-sm`}>
+              {formatRevenue(rep1.wonDealsAmount)}
+            </span>
+          </div>
+        ) : <div className="w-full" />}
+
+        {/* 3rd Place (Right side, slightly smaller than 1st) */}
+        {rep3 ? (
           <div 
             id={`podium-3-${rep3.id}`}
             onClick={() => onSelectRep(rep3)}
-            className="flex flex-col items-center text-center cursor-pointer transition-transform duration-300 hover:scale-105 group"
+            className="flex flex-col items-center text-center cursor-pointer transition-transform duration-300 hover:scale-105 group w-full"
           >
-            <div className={`relative ${isTvMode ? 'mb-2' : 'mb-3'}`}>
-              <div className={`rounded-full p-1 bg-gradient-to-tr from-amber-700 via-orange-500 to-amber-400 bronze-glow relative ${
-                isTvMode ? 'w-16 h-16 sm:w-20 sm:h-20 md:w-22 md:h-22' : 'w-22 h-22 sm:w-26 sm:h-26 md:w-28 md:h-28'
+            <div className={`relative ${isTvMode ? 'mb-2.5' : 'mb-3.5'}`}>
+              <div className={`rounded-2xl p-1 bg-gradient-to-tr from-amber-700 via-orange-500 to-amber-400 bronze-glow relative aspect-square shadow-xl ${
+                isTvMode ? 'w-18 h-18 sm:w-22 sm:h-22 md:w-24 md:h-24' : 'w-20 h-20 sm:w-24 sm:h-24 md:w-26 md:h-26'
               }`}>
                 <img
                   src={rep3.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
@@ -166,7 +166,7 @@ export const PodiumTop10Card: React.FC<PodiumTop10CardProps> = ({
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
                   }}
-                  className="w-full h-full object-cover rounded-full border-2 border-[#151c2d]"
+                  className="w-full h-full object-cover rounded-xl border-2 border-[#151c2d]"
                 />
               </div>
 
@@ -180,10 +180,10 @@ export const PodiumTop10Card: React.FC<PodiumTop10CardProps> = ({
               </div>
             </div>
 
-            <span className="text-xs sm:text-sm text-slate-200 font-semibold mt-1 truncate max-w-[120px] group-hover:text-blue-400 transition-colors">
+            <span className="text-xs sm:text-sm text-slate-200 font-semibold mt-1 truncate max-w-[110px] sm:max-w-[130px] group-hover:text-blue-400 transition-colors">
               {rep3.name}
             </span>
-            <span className="text-[10px] text-purple-400 font-medium truncate max-w-[110px]">
+            <span className="text-[10px] text-purple-400 font-medium truncate max-w-[100px] sm:max-w-[120px]">
               {rep3.department}
             </span>
             <span className={`${
@@ -192,7 +192,7 @@ export const PodiumTop10Card: React.FC<PodiumTop10CardProps> = ({
               {formatRevenue(rep3.wonDealsAmount)}
             </span>
           </div>
-        )}
+        ) : <div className="w-full" />}
       </div>
 
       {/* OTHER 7 TOP SELLERS (Ranks 4 to 10 - Smaller Icons with Achievement Sales) */}
