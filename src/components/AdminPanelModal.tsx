@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SalesRep, DepartmentData, CompanyTargetSummary, AppUser, UserRole, TimeRange } from '../types';
 import { INITIAL_REPS } from '../data/initialData';
 import { 
@@ -32,7 +32,11 @@ import {
   AlertCircle,
   Calculator,
   ArrowUpRight,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Upload,
+  Phone,
+  Award,
+  Globe
 } from 'lucide-react';
 
 interface AdminPanelModalProps {
@@ -159,6 +163,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   const [newManpowerEmail, setNewManpowerEmail] = useState('');
   const [newManpowerPhone, setNewManpowerPhone] = useState('');
   const [newManpowerBadges] = useState<('trophy' | 'silver-medal' | 'bronze-medal' | 'star')[]>(['star']);
+
+  // Dedicated Sales Rep Profile Editor Modal State
+  const [editingRep, setEditingRep] = useState<SalesRep | null>(null);
 
   // Editing single manpower image quick modal
   const [editingImageUrlRepId, setEditingImageUrlRepId] = useState<string | null>(null);
@@ -354,6 +361,51 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     }
     setEditingImageUrlRepId(null);
     setQuickImageUrlInput('');
+  };
+
+  const handleSaveEditingRep = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRep || !editingRep.name.trim()) return;
+
+    const updated = repList.map(r => {
+      if (r.id === editingRep.id) {
+        return {
+          ...editingRep,
+          name: editingRep.name.trim(),
+          displayName: editingRep.name.trim(),
+          employeeId: editingRep.employeeId ? editingRep.employeeId.trim() : undefined,
+          targetAmount: Number(editingRep.targetAmount) || 0,
+          wonDealsAmount: Number(editingRep.wonDealsAmount) || 0,
+          demosCount: Number(editingRep.demosCount) || 0,
+          winRate: Number(editingRep.winRate) || 0,
+        };
+      }
+      return r;
+    });
+
+    setRepList(updated);
+    onUpdateReps(updated, timeRange);
+    setEditingRep(null);
+  };
+
+  const handleUploadFileForRep = (e: React.ChangeEvent<HTMLInputElement>, isForNewRep = false) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          const dataUrl = reader.result as string;
+          if (isForNewRep) {
+            setNewManpowerImageUrl(dataUrl);
+          } else if (editingRep) {
+            setEditingRep({ ...editingRep, avatar: dataUrl });
+          } else if (editingImageUrlRepId) {
+            setQuickImageUrlInput(dataUrl);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleDeleteManpower = (id: string) => {
@@ -1028,11 +1080,23 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 </div>
 
                 {/* Avatar Image URL & Presets */}
-                <div className="pt-2 border-t border-slate-800">
-                  <label className="text-[10px] text-slate-400 block mb-1 font-semibold flex items-center justify-between">
-                    <span>Profile Photo Image URL</span>
-                    <span className="text-slate-500">Unsplash or company CDN link</span>
-                  </label>
+                <div className="pt-2 border-t border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                      <ImageIcon className="w-3 h-3 text-blue-400" />
+                      <span>Profile Photo</span>
+                    </label>
+                    <label className="cursor-pointer px-2 py-0.5 rounded bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 text-[10px] font-semibold border border-blue-500/30 flex items-center gap-1 transition-colors">
+                      <Upload className="w-3 h-3" />
+                      <span>Upload from Device</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleUploadFileForRep(e, true)}
+                      />
+                    </label>
+                  </div>
                   <div className="flex items-center gap-2">
                     <input
                       type="url"
@@ -1098,7 +1162,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 return (
                   <div
                     key={rep.id}
-                    className="p-3 rounded-xl bg-[#111827]/80 border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col justify-between gap-2.5"
+                    className="p-3 rounded-xl bg-[#111827]/80 border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col justify-between gap-2.5 group/repcard"
                   >
                     {/* Top Row: Avatar & Details */}
                     <div className="flex items-center gap-3 min-w-0">
@@ -1106,21 +1170,19 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                         <img
                           src={rep.avatar}
                           alt={rep.name}
-                          className="w-11 h-11 rounded-xl object-cover border border-slate-700"
+                          className="w-11 h-11 rounded-xl object-cover border border-slate-700 cursor-pointer"
+                          onClick={() => setEditingRep(rep)}
                           referrerPolicy="no-referrer"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
                           }}
                         />
                         <button
-                          onClick={() => {
-                            setEditingImageUrlRepId(rep.id);
-                            setQuickImageUrlInput(rep.avatar);
-                          }}
-                          title="Change profile image URL"
+                          onClick={() => setEditingRep(rep)}
+                          title="Edit profile & photo"
                           className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center text-white transition-opacity"
                         >
-                          <ImageIcon className="w-4 h-4 text-blue-400" />
+                          <Edit3 className="w-4 h-4 text-blue-400" />
                         </button>
                       </div>
 
@@ -1147,18 +1209,33 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           </span>
                         </div>
 
-                        <div className="text-[10px] text-slate-400 truncate">
-                          {rep.role} • <strong className="text-blue-400">{rep.department}</strong>
+                        <div className="text-[10px] text-slate-400 truncate flex items-center justify-between">
+                          <span className="truncate">
+                            {rep.role} • <strong className="text-blue-400">{rep.department}</strong>
+                          </span>
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => handleDeleteManpower(rep.id)}
-                        title="Delete representative"
-                        className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-rose-600 text-slate-400 hover:text-white transition-colors shrink-0"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Action buttons: Edit Profile & Delete */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setEditingRep(rep)}
+                          title="Edit full profile (Name, ID, Photo, Department, Quotas, Contact)"
+                          className="px-2 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/30 text-[10px] font-bold transition-all flex items-center gap-1 shrink-0"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          <span>Edit</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteManpower(rep.id)}
+                          title="Delete representative"
+                          className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-rose-600 text-slate-400 hover:text-white transition-colors shrink-0"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     {/* Bottom Row: Editable Target & Actual Quotas */}
@@ -1198,6 +1275,286 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 );
               })}
             </div>
+
+            {/* Dedicated Edit Representative Profile Modal */}
+            {editingRep && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+                <div className="w-full max-w-2xl bg-[#0e1524] border border-blue-500/40 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+                  {/* Header */}
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <img
+                          src={editingRep.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
+                          alt={editingRep.name}
+                          className="w-12 h-12 rounded-xl object-cover border-2 border-blue-500/60 shadow"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-bold text-white flex items-center gap-2">
+                          <Edit3 className="w-4 h-4 text-blue-400" />
+                          Edit Representative Profile
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                          Edit info, quotas, credentials, and image for <strong className="text-white">{editingRep.name}</strong>
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setEditingRep(null)}
+                      className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSaveEditingRep} className="space-y-4">
+                    {/* Row 1: Employee ID & Full Name & Region */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-xs text-slate-300 font-semibold block mb-1">
+                          Employee ID *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editingRep.employeeId || ''}
+                          onChange={(e) => setEditingRep({ ...editingRep, employeeId: e.target.value })}
+                          placeholder="e.g. 1034"
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-xl px-3 py-2 text-xs text-blue-400 font-mono font-bold focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-slate-300 font-semibold block mb-1">
+                          Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editingRep.name}
+                          onChange={(e) => setEditingRep({ ...editingRep, name: e.target.value, displayName: e.target.value })}
+                          placeholder="Full Name"
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-slate-300 font-semibold block mb-1">
+                          Region / Territory
+                        </label>
+                        <input
+                          type="text"
+                          value={editingRep.region}
+                          onChange={(e) => setEditingRep({ ...editingRep, region: e.target.value })}
+                          placeholder="e.g. USA, UK, Sweden, Kenya"
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 2: Department & Designation / Role */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-slate-300 font-semibold block mb-1">
+                          Assigned Department *
+                        </label>
+                        <select
+                          value={editingRep.department}
+                          onChange={(e) => setEditingRep({ ...editingRep, department: e.target.value })}
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500"
+                        >
+                          {deptList.map((d) => (
+                            <option key={d.id} value={d.name}>
+                              {d.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-slate-300 font-semibold block mb-1">
+                          Job Title / Designation
+                        </label>
+                        <input
+                          type="text"
+                          value={editingRep.role}
+                          onChange={(e) => setEditingRep({ ...editingRep, role: e.target.value })}
+                          placeholder="e.g. Principal Solutions AE"
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 3: Target Quota ($), Won Deals Revenue ($), Demos Count, Win Rate (%) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                      <div>
+                        <label className="text-[11px] text-slate-400 font-semibold block mb-1">
+                          Target Quota ($)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1000"
+                          value={editingRep.targetAmount}
+                          onChange={(e) => setEditingRep({ ...editingRep, targetAmount: Number(e.target.value) })}
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] text-slate-400 font-semibold block mb-1">
+                          Won Revenue ($)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1000"
+                          value={editingRep.wonDealsAmount}
+                          onChange={(e) => setEditingRep({ ...editingRep, wonDealsAmount: Number(e.target.value) })}
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] text-slate-400 font-semibold block mb-1">
+                          Demos Given
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={editingRep.demosCount}
+                          onChange={(e) => setEditingRep({ ...editingRep, demosCount: Number(e.target.value) })}
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] text-slate-400 font-semibold block mb-1">
+                          Win Rate (%)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={editingRep.winRate}
+                          onChange={(e) => setEditingRep({ ...editingRep, winRate: Number(e.target.value) })}
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-blue-400 font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 4: Email & Phone */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-slate-300 font-semibold block mb-1 flex items-center gap-1.5">
+                          <Mail className="w-3.5 h-3.5 text-slate-400" />
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          value={editingRep.email || ''}
+                          onChange={(e) => setEditingRep({ ...editingRep, email: e.target.value })}
+                          placeholder="name@company.com"
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-slate-300 font-semibold block mb-1 flex items-center gap-1.5">
+                          <Phone className="w-3.5 h-3.5 text-slate-400" />
+                          Phone Number
+                        </label>
+                        <input
+                          type="text"
+                          value={editingRep.phone || ''}
+                          onChange={(e) => setEditingRep({ ...editingRep, phone: e.target.value })}
+                          placeholder="+1 (555) 019-2834"
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 5: Profile Photo Management (Upload / URL / Presets) */}
+                    <div className="p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+                          <ImageIcon className="w-3.5 h-3.5 text-blue-400" />
+                          Profile Photo (Direct URL or Device Upload)
+                        </label>
+                        <label className="cursor-pointer px-2.5 py-1 rounded-lg bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 text-[11px] font-semibold border border-blue-500/40 flex items-center gap-1 transition-colors">
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Upload Photo</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleUploadFileForRep(e, false)}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="flex gap-3 items-center">
+                        <img
+                          src={editingRep.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
+                          alt="Avatar Preview"
+                          className="w-12 h-12 rounded-xl object-cover border border-slate-700 shrink-0"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+                          }}
+                        />
+                        <input
+                          type="url"
+                          value={editingRep.avatar}
+                          onChange={(e) => setEditingRep({ ...editingRep, avatar: e.target.value })}
+                          placeholder="https://images.unsplash.com/photo-..."
+                          className="w-full bg-[#0b101b] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 font-mono"
+                        />
+                      </div>
+
+                      {/* Quick Presets */}
+                      <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-1">
+                        <span className="text-[10px] text-slate-500 shrink-0 font-medium">Quick Avatars:</span>
+                        {PRESET_AVATARS.map((av, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setEditingRep({ ...editingRep, avatar: av.url })}
+                            title={av.label}
+                            className="w-7 h-7 rounded-full overflow-hidden border border-slate-700 hover:scale-110 transition-transform shrink-0"
+                          >
+                            <img src={av.url} alt={av.label} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setEditingRep(null)}
+                        className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 flex items-center gap-1.5 transition-colors"
+                      >
+                        <Save className="w-4 h-4" />
+                        Save Profile Changes
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
 
             {/* Quick Image URL Edit Modal Overlay */}
             {editingImageUrlRepId && (
