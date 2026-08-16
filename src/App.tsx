@@ -49,7 +49,7 @@ export default function App() {
   // Multi-Period Data State (Month, Quarter, YTD)
   const [periodsData, setPeriodsData] = useState<Record<TimeRange, PeriodData>>(() => {
     try {
-      const saved = localStorage.getItem('office_leaderboard_periods_v5');
+      const saved = localStorage.getItem('office_leaderboard_periods_v6');
       if (saved) {
         return JSON.parse(saved);
       }
@@ -205,7 +205,7 @@ export default function App() {
   // Persist All Multi-Period Data (Month, Quarter, Year) to Local Storage & Cloud Firestore
   useEffect(() => {
     try {
-      localStorage.setItem('office_leaderboard_periods_v5', JSON.stringify(periodsData));
+      localStorage.setItem('office_leaderboard_periods_v6', JSON.stringify(periodsData));
       
       // If modification was done locally by authorized user/admin (not just received from cloud snapshot), push to Firestore
       if (canEdit && !isIncomingFromCloudRef.current) {

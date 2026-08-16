@@ -24,17 +24,16 @@ export const TargetAchievementSummary: React.FC<TargetAchievementSummaryProps> =
   isTvMode = false
 }) => {
   const [isEditingTarget, setIsEditingTarget] = useState(false);
-  const [targetInput, setTargetInput] = useState((summary?.monthlyTarget || 70000).toString());
+  const [targetInput, setTargetInput] = useState((summary?.monthlyTarget !== undefined && summary?.monthlyTarget !== null ? summary.monthlyTarget : 0).toString());
   const [distributeToDepts, setDistributeToDepts] = useState(false);
 
-  const safeMonthlyTarget = Number(summary?.monthlyTarget) || 70000;
+  const safeMonthlyTarget = summary?.monthlyTarget !== undefined && summary?.monthlyTarget !== null ? Number(summary.monthlyTarget) : 0;
   const safeCurrentAchievement = Number(summary?.currentAchievement) || 0;
 
   const allowEdit = canEdit || isAdmin;
-  const safeTarget = Math.max(1, safeMonthlyTarget);
-  const rawAttainmentPercent = Math.round((safeCurrentAchievement / safeTarget) * 100);
+  const rawAttainmentPercent = safeMonthlyTarget > 0 ? Math.round((safeCurrentAchievement / safeMonthlyTarget) * 100) : 0;
   const attainmentPercent = Math.min(100, rawAttainmentPercent);
-  const isTargetMet = safeCurrentAchievement >= safeMonthlyTarget;
+  const isTargetMet = safeMonthlyTarget > 0 && safeCurrentAchievement >= safeMonthlyTarget;
   const shortfall = Math.max(0, safeMonthlyTarget - safeCurrentAchievement);
   const surplus = Math.max(0, safeCurrentAchievement - safeMonthlyTarget);
 

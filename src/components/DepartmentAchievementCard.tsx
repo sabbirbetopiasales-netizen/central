@@ -231,11 +231,11 @@ export const DepartmentAchievementCard: React.FC<DepartmentAchievementCardProps>
         {/* Department Table Rows (scrolls internally if needed in small screens) */}
         <div className="divide-y divide-slate-800/80 overflow-y-auto flex-1 min-h-0">
           {departments.map((dept, index) => {
-            const attainment = Math.round((dept.actual / (dept.target || 1)) * 100);
+            const attainment = dept.target > 0 ? Math.round((dept.actual / dept.target) * 100) : 0;
             const isSelected = selectedDepartment === dept.name;
             const isEditingTarget = allowEdit && editingTargetDeptId === dept.id;
             const isEditingActual = allowEdit && editingActualDeptId === dept.id;
-            const isTargetMet = dept.actual >= dept.target;
+            const isTargetMet = dept.target > 0 && dept.actual >= dept.target;
             const shortfall = Math.max(0, dept.target - dept.actual);
             const surplus = Math.max(0, dept.actual - dept.target);
 

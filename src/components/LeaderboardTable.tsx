@@ -80,8 +80,8 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
         return a.name.localeCompare(b.name);
       }
       if (sortBy === 'attainment') {
-        const attA = (a.wonDealsAmount / a.targetAmount);
-        const attB = (b.wonDealsAmount / b.targetAmount);
+        const attA = a.targetAmount > 0 ? (a.wonDealsAmount / a.targetAmount) : 0;
+        const attB = b.targetAmount > 0 ? (b.wonDealsAmount / b.targetAmount) : 0;
         return attB - attA;
       }
       if (sortBy === 'demos') {
@@ -245,8 +245,8 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
         ) : (
           filteredReps.map((rep, idx) => {
             const rank = idx + 1;
-            const attainment = Math.round((rep.wonDealsAmount / rep.targetAmount) * 100);
-            const isTargetMet = rep.wonDealsAmount >= rep.targetAmount;
+            const attainment = rep.targetAmount > 0 ? Math.round((rep.wonDealsAmount / rep.targetAmount) * 100) : 0;
+            const isTargetMet = rep.targetAmount > 0 && rep.wonDealsAmount >= rep.targetAmount;
             const shortfall = Math.max(0, rep.targetAmount - rep.wonDealsAmount);
 
             return (
